@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YouTube 下載器</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="bg-gradient"></div>
+
+  <main class="container">
+    <header class="header">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+          <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31.3 31.3 0 0 0 0 12a31.3 31.3 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31.3 31.3 0 0 0 24 12a31.3 31.3 0 0 0-.5-5.8z"/>
+          <polygon points="9.75,15.02 15.5,12 9.75,8.98" fill="#0f0f0f"/>
+        </svg>
+        <h1>YouTube 下載器</h1>
+      </div>
+      <p class="subtitle">貼上 YouTube 網址，下載影片或音訊</p>
+    </header>
+
+    <section class="card">
+      <form id="download-form">
+        <div class="input-group">
+          <label for="url">YouTube 網址</label>
+          <input
+            type="url"
+            id="url"
+            name="url"
+            placeholder="https://www.youtube.com/watch?v=..."
+            required
+            autocomplete="off"
+          />
+        </div>
+
+        <details class="advanced-settings">
+          <summary>進階選項（遇到驗證錯誤時使用）</summary>
+          <div class="input-group">
+            <label for="browser">Cookies 來源瀏覽器</label>
+            <select id="browser" name="browser">
+              <option value="auto" selected>自動（推薦，無需登入）</option>
+              <option value="chrome">Chrome</option>
+              <option value="safari">Safari</option>
+              <option value="firefox">Firefox</option>
+              <option value="brave">Brave</option>
+              <option value="edge">Edge</option>
+              <option value="chromium">Chromium</option>
+            </select>
+            <p class="input-hint">僅在出現「機器人驗證」錯誤時，才選擇已登入 YouTube 的瀏覽器</p>
+          </div>
+        </details>
+
+        <div class="mode-selector">
+          <label class="mode-option">
+            <input type="radio" name="mode" value="video" checked />
+            <span class="mode-card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              <span>下載影片</span>
+              <small>MP4 格式</small>
+            </span>
+          </label>
+          <label class="mode-option">
+            <input type="radio" name="mode" value="audio" />
+            <span class="mode-card">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 18V5l12-2v13"/>
+                <circle cx="6" cy="18" r="3"/>
+                <circle cx="18" cy="16" r="3"/>
+              </svg>
+              <span>下載音訊</span>
+              <small>M4A / MP3 格式</small>
+            </span>
+          </label>
+        </div>
+
+        <div id="audio-format-selector" class="audio-format-selector hidden">
+          <label class="selector-label">音訊格式</label>
+          <div class="format-options">
+            <label class="format-option">
+              <input type="radio" name="audio_format" value="m4a" checked />
+              <span class="format-card">
+                <span class="format-name">M4A</span>
+                <small>無需額外套件</small>
+              </span>
+            </label>
+            <label class="format-option">
+              <input type="radio" name="audio_format" value="mp3" />
+              <span class="format-card">
+                <span class="format-name">MP3</span>
+                <small>需要 FFmpeg</small>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" id="submit-btn" class="btn-primary">
+          <span class="btn-text">開始下載</span>
+          <span class="btn-loading hidden">
+            <span class="spinner"></span>
+            處理中...
+          </span>
+        </button>
+      </form>
+    </section>
+
+    <section id="preview" class="card preview hidden">
+      <div class="preview-content">
+        <img id="thumbnail" src="" alt="影片縮圖" />
+        <div class="preview-info">
+          <h2 id="video-title"></h2>
+          <p id="video-uploader"></p>
+          <p id="video-duration"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="result" class="card result hidden">
+      <div class="result-icon success">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <h2>下載完成！</h2>
+      <p id="result-filename"></p>
+      <a id="download-link" href="#" class="btn-secondary" download>儲存檔案</a>
+    </section>
+
+    <section id="error" class="card error hidden">
+      <div class="result-icon error-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+      </div>
+      <h2>發生錯誤</h2>
+      <p id="error-message"></p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p>僅供個人學習使用，請尊重版權</p>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>
