@@ -26,7 +26,31 @@ sudo apt update && sudo apt install -y ffmpeg
 
 **Windows**
 
-前往 [https://ffmpeg.org/download.html](https://ffmpeg.org/download.html) 下載，並將 `ffmpeg.exe` 加入系統 PATH。
+1. 若系統已啟用 `winget`，可直接在 PowerShell 執行：
+
+```powershell
+winget install --id=Gyan.FFmpeg -e
+```
+
+2. 如果不想使用 `winget`，請前往 [https://ffmpeg.org/download.html](https://ffmpeg.org/download.html) 下載 Windows 版本，或使用可靠第三方編譯版本，例如：
+   - https://www.gyan.dev/ffmpeg/builds/
+   - https://www.gyan.dev/ffmpeg/builds/
+
+3. 下載「Static」版本 ZIP，解壓到資料夾，例如 `C:\ffmpeg`。
+
+4. 將 `C:\ffmpeg\bin` 加入系統 PATH：
+   - 開啟「設定」>「系統」>「關於」>「進階系統設定」>「環境變數」
+   - 在「系統變數」中找到 `Path`，編輯並新增 `C:\ffmpeg\bin`
+
+5. 重新啟動 PowerShell。
+
+6. 驗證安裝是否成功：
+
+```powershell
+ffmpeg -version
+```
+
+安裝完成後重新啟動服務即可使用 MP3 格式；若未安裝 FFmpeg 而選擇 MP3，下載時會顯示錯誤提示。
 
 > 安裝完成後重新啟動服務即可使用 MP3 格式；若未安裝 FFmpeg 而選擇 MP3，下載時會顯示錯誤提示。
 
