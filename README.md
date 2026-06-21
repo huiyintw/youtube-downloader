@@ -86,6 +86,22 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 檔案會儲存在專案根目錄的 `downloads/` 資料夾。
 
+## 錯誤處理
+
+本專案已針對常見的 `yt-dlp` 錯誤做中文化提示，包含：
+
+- YouTube 要求登入或機器人驗證
+- `403 Forbidden`
+- 瀏覽器 cookies 讀取失敗
+- 缺少 FFmpeg 或 FFprobe
+- 找不到可用格式
+- 影片無法存取、地區限制或已移除
+- 影片受 DRM 保護
+
+若出現「此影片受 DRM 保護，yt-dlp 無法下載」，代表該影片本身使用 DRM 保護。這類內容無法透過本工具下載，也不應繞過 DRM；請改用未受 DRM 保護的影片。如果錯誤來自播放清單中的其中一支影片，請略過該影片後再下載其他內容。
+
+此次修正也會清除 `yt-dlp` 終端機輸出的 ANSI 顏色控制碼，避免前端顯示類似 `ERROR:` 的原始錯誤字串。
+
 ## 專案結構
 
 ```
@@ -98,6 +114,14 @@ youtube-downloader/
 ├── requirements.txt
 └── README.md
 ```
+
+## 上傳 GitHub 建議
+
+建議只上傳程式碼與設定檔，不要上傳本機環境或下載後的影音檔：
+
+- 保留：`app/`、`requirements.txt`、`README.md`
+- 可保留空資料夾：`downloads/`
+- 不要上傳：`venv/`、`__pycache__/`、`.DS_Store`、已下載的 `.mp3`、`.mp4` 等影音檔
 
 ## 注意事項
 
