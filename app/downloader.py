@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 from pathlib import Path
 from typing import Literal, Optional
@@ -25,6 +26,10 @@ DOWNLOAD_DIR.mkdir(exist_ok=True)
 SUPPORTED_BROWSERS = ("chrome", "safari", "firefox", "brave", "edge", "chromium")
 DEFAULT_BROWSER = os.environ.get("YTDLP_BROWSER", "chrome")
 HAS_FFMPEG = shutil.which("ffmpeg") is not None
+ANSI_RE = re.compile(r"\x1b\[[0-?]*[ -/]*[@-~]")
+UNRECOVERABLE_ERROR_MARKERS = (
+    "drm protected",
+)
 
 
 def _cookie_opts(browser: str) -> dict:
@@ -68,8 +73,22 @@ def _common_opts() -> dict:
     }
 
 
+def _clean_error_message(exc: Exception) -> str:
+    return ANSI_RE.sub("", str(exc)).strip()
+
+
+def _is_unrecoverable_error(exc: Exception) -> bool:
+    msg = _clean_error_message(exc).lower()
+    return any(marker in msg for marker in UNRECOVERABLE_ERROR_MARKERS)
+
+
 def _friendly_error(exc: Exception) -> str:
-    msg = str(exc)
+    msg = _clean_error_message(exc)
+    if "drm protected" in msg.lower():
+        return (
+            "此影片受 DRM 保護，yt-dlp 無法下載。"
+            "請改用未受 DRM 保護的影片；如果是播放清單中的其中一支，請略過該影片。"
+        )
     if "Sign in to confirm" in msg or "not a bot" in msg:
         return (
             "YouTube 要求驗證身分。請在進階選項選擇已登入 YouTube 的瀏覽器後重試。"
@@ -113,6 +132,8 @@ def _extract_with_fallback(
                 return ydl.extract_info(url, download=download)
         except Exception as e:
             last_error = e
+            if _is_unrecoverable_error(e):
+                break
             continue
 
     raise RuntimeError(_friendly_error(last_error or RuntimeError("下載失敗")))
